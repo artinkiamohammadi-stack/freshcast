@@ -41,7 +41,7 @@ FreshCast is a full-stack demand forecasting system built for perishable goods r
 **Requirements:** Python 3.11+
 
 ```bash
-git clone https://github.com/your-username/freshcast.git
+git clone https://github.com/artinkiamohammadi-stack/freshcast.git
 cd freshcast
 
 python -m venv .venv
@@ -76,7 +76,7 @@ On first boot the server automatically:
 **Requirements:** Docker Desktop
 
 ```bash
-git clone https://github.com/your-username/freshcast.git
+git clone https://github.com/artinkiamohammadi-stack/freshcast.git
 cd freshcast
 docker-compose up --build
 ```
