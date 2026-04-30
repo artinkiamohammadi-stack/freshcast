@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FreshCast — Demand Forecasting for Perishable Goods</title>
+
+  <!-- Plotly.js from CDN — loads the full interactive charting library -->
+  <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<!-- ── Navigation Bar ─────────────────────────────────────────────────── -->
+<nav class="navbar">
+  <div class="brand">
+    <div class="brand-icon">🥬</div>
+    <span class="brand-name">Fresh<span>Cast</span></span>
+  </div>
+
+  <div class="navbar-right">
+    <span id="last-updated" class="last-updated">Loading model info…</span>
+    <span id="model-badge" class="badge-model">—</span>
+    <button id="retrain-btn" class="btn btn-primary">↺ Retrain Model</button>
+  </div>
+</nav>
+
+<!-- ── Main Content ───────────────────────────────────────────────────── -->
+<main class="main">
+
+  <!-- KPI Cards -->
+  <div class="kpi-row">
+    <div class="kpi-card accent">
+      <div class="kpi-label">Tracked Products</div>
+      <div class="kpi-value accent" id="kpi-products">—</div>
+      <div class="kpi-sub">Fresh perishable items</div>
+    </div>
+    <div class="kpi-card info">
+      <div class="kpi-label">Forecast Accuracy</div>
+      <div class="kpi-value info" id="kpi-accuracy">—</div>
+      <div class="kpi-sub" id="kpi-mae">Based on hold-out set</div>
+    </div>
+    <div class="kpi-card danger">
+      <div class="kpi-label">Shortage Alerts</div>
+      <div class="kpi-value danger" id="kpi-shortage">—</div>
+      <div class="kpi-sub">Predicted demand &gt; supply buffer</div>
+    </div>
+    <div class="kpi-card warning">
+      <div class="kpi-label">Overstock Alerts</div>
+      <div class="kpi-value warning" id="kpi-overstock">—</div>
+      <div class="kpi-sub">Risk of spoilage / waste</div>
+    </div>
+  </div>
+
+  <!-- Main forecast chart + category breakdown -->
+  <div class="grid-2">
+
+    <!-- Forecast Chart -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">
+          <span class="icon">📈</span>
+          Demand Forecast
+        </span>
+        <div class="product-controls">
+          <div class="search-wrap">
+            <span class="search-icon">⌕</span>
+            <input type="text" id="product-search" class="product-search-input" placeholder="Search products…" autocomplete="off">
+            <button id="search-clear" class="search-clear" title="Clear search">✕</button>
+          </div>
+          <div class="select-wrap">
+            <select id="product-select" title="Select product"></select>
+          </div>
+          <div class="select-wrap">
+            <select id="days-select" title="Forecast horizon">
+              <option value="7">7-day forecast</option>
+              <option value="14">14-day forecast</option>
+              <option value="28">28-day forecast</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div id="forecast-chart">
+          <div class="empty-state">
+            <div class="empty-icon">📊</div>
+            <p>Loading forecast data…</p>
+          </div>
+        </div>
+        <div id="forecast-numbers"></div>
+      </div>
+    </div>
+
+    <!-- Right sidebar: category donut + accuracy gauge -->
+    <div style="display:flex; flex-direction:column; gap:1.25rem;">
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title"><span class="icon">🏷</span> Product Categories</span>
+        </div>
+        <div class="card-body">
+          <div id="category-chart"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title"><span class="icon">🎯</span> Model Accuracy</span>
+        </div>
+        <div class="card-body">
+          <div id="accuracy-gauge"></div>
+          <p style="text-align:center; font-size:0.78rem; color:#8b91a8; margin-top:0.5rem">
+            100% − (MAE / avg demand) × 100
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Product Dictionary -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title"><span class="icon">📖</span> Product Dictionary</span>
+      <span style="font-size:0.78rem; color:#8b91a8">Click any product to view its forecast</span>
+    </div>
+    <div class="card-body">
+      <div id="product-dictionary"></div>
+    </div>
+  </div>
+
+  <!-- Risk Table -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">
+        <span class="icon">⚠️</span>
+        Supply Risk Analysis
+      </span>
+      <span style="font-size:0.78rem; color:#8b91a8">
+        Comparing 7-day forecast vs. past 7-day actual sales
+      </span>
+    </div>
+    <div class="card-body no-pad">
+      <div class="risk-table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Category</th>
+              <th>Actual Avg (7d)</th>
+              <th>Forecast Avg (7d)</th>
+              <th>Trend</th>
+              <th>Risk</th>
+            </tr>
+          </thead>
+          <tbody id="risk-tbody">
+            <tr>
+              <td colspan="6" style="padding:1.5rem; text-align:center; color:#8b91a8">
+                <span class="spinner"></span> Loading risk analysis…
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ── Footer ─────────────────────────────────────────────────────────── -->
+<footer class="footer">
+  FreshCast · Demand Forecasting for Perishable Goods ·
+  Built with Python, FastAPI, scikit-learn &amp; Plotly
+</footer>
+
+<!-- ── Toast container ────────────────────────────────────────────────── -->
+<div id="toast-container" class="toast-container"></div>
+
+<!-- JavaScript (order matters: api → charts → dashboard) -->
+<script src="/js/api.js?v=6"></script>
+<script src="/js/charts.js?v=6"></script>
+<script src="/js/dashboard.js?v=6"></script>
+
+</body>
+</html>
