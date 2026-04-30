@@ -167,3 +167,8 @@ After training, the model evaluates each product individually on its 28-day hold
 - **LSTM model upgrade** — experiment with a sequence model for longer-horizon forecasts where temporal dependencies matter more
 - **Azure deployment** — containerise and deploy to Azure Container Apps with Azure Database for MySQL, CI/CD via GitHub Actions
 
+## Author
+Built by Artin Kiamohammadi — CS student at University of Wollongong in Dubai,
+specialising in Cybersecurity with a focus on AI/ML applications.
+
+[GitHub](https://github.com/artinkiamohammadi-stack)
