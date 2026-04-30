@@ -1,0 +1,42 @@
+# ── Environment ────────────────────────────────────────────────────────────
+.env
+
+# ── Database files ─────────────────────────────────────────────────────────
+*.db
+*.sqlite
+*.sqlite3
+
+# ── Trained model artifacts ────────────────────────────────────────────────
+models/*.pkl
+models/*.joblib
+
+# ── M5 / Kaggle dataset files (large — download separately if needed) ──────
+data/*.csv
+data/*.zip
+
+# ── Python ─────────────────────────────────────────────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+
+# ── Node ───────────────────────────────────────────────────────────────────
+node_modules/
+
+# ── OS ─────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── IDE ────────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+
+# ── Personal / dev notes (not relevant to the project itself) ──────────────
+unnecessary/

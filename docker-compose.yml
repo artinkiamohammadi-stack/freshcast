@@ -1,0 +1,85 @@
+version: "3.9"
+
+# ── FreshCast — docker-compose.yml ────────────────────────────────────────
+#
+# Three services:
+#   db        → MySQL 8.0 (stores products, sales, forecasts)
+#   api       → FastAPI + uvicorn (ML training, predictions, REST API)
+#   frontend  → Nginx (serves HTML/CSS/JS, proxies /api → api:8000)
+#
+# Start everything with: docker-compose up --build
+# Dashboard opens at:    http://localhost
+# API docs open at:      http://localhost/api/docs
+
+services:
+
+  # ── MySQL Database ────────────────────────────────────────────────────
+  db:
+    image: mysql:8.0
+    container_name: freshcast_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root_pass
+      MYSQL_DATABASE:      freshcast
+      MYSQL_USER:          freshcast
+      MYSQL_PASSWORD:      freshcast_pass
+    volumes:
+      # Persist data between container restarts
+      - mysql_data:/var/lib/mysql
+      # Run schema creation SQL on first boot
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "3306:3306"   # Expose for optional local MySQL client access
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "freshcast", "-pfreshcast_pass"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  # ── FastAPI Backend ───────────────────────────────────────────────────
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: freshcast_api
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy   # wait until MySQL is accepting connections
+    environment:
+      DB_HOST:     db
+      DB_PORT:     3306
+      DB_USER:     freshcast
+      DB_PASSWORD: freshcast_pass
+      DB_NAME:     freshcast
+      DATA_DIR:    /app/data
+      MODEL_DIR:   /app/models
+    volumes:
+      # Mount local data/ and models/ dirs so CSVs and .pkl files persist
+      - ./data:/app/data:ro          # read-only: only seed.py reads these
+      - ./models:/app/models         # read-write: trainer.py writes here
+    ports:
+      - "8000:8000"   # Expose for direct API testing during development
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  # ── Nginx Frontend ────────────────────────────────────────────────────
+  frontend:
+    image: nginx:alpine
+    container_name: freshcast_frontend
+    restart: unless-stopped
+    depends_on:
+      - api
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro   # serve our HTML/CSS/JS
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro  # our custom nginx config
+    ports:
+      - "80:80"    # Main entry point: http://localhost
+
+volumes:
+  mysql_data:
+    driver: local
