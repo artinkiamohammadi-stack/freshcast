@@ -1,3 +1,4 @@
+<img width="953" height="408" alt="2026-04-30 14_24_01-FreshCast — Demand Forecasting for Perishable Goods - Brave" src="https://github.com/user-attachments/assets/9340453a-66fc-431d-9315-3cf2522e8afa" />
 ﻿# FreshCast — Demand Forecasting for Perishable Goods
 
 ![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=flat&logo=python&logoColor=white)
