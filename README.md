@@ -137,7 +137,20 @@ After training, the model evaluates each product individually on its 28-day hold
 <img width="953" height="408" alt="2026-04-30 14_24_01-FreshCast — Demand Forecasting for Perishable Goods - Brave" src="https://github.com/user-attachments/assets/9340453a-66fc-431d-9315-3cf2522e8afa" />
 
 
+
+
+
+
+
+
 <img width="952" height="411" alt="2026-04-30 14_25_03-FreshCast — Demand Forecasting for Perishable Goods - Brave" src="https://github.com/user-attachments/assets/7dfa13b3-622d-4e76-ae11-ae22dd310e16" />
+
+
+
+
+
+
+
 
 
 
