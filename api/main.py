@@ -15,6 +15,10 @@ On startup:
 """
 
 import os
+
+os.environ.setdefault('DATABASE_URL', 'sqlite:///./freshcast.db')
+os.environ.setdefault('MODEL_DIR', './models')
+
 import sys
 import time
 import logging
