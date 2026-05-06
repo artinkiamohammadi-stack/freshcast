@@ -59,11 +59,16 @@ def health():
     return {"status": "ok"}
 
 
-# Serve the frontend as static files when running locally (without Nginx).
+# Serve the frontend as static files.
+# In Docker the frontend is at /app/frontend (FRONTEND_DIR env var overrides).
 # API routes registered above take priority over the catch-all static mount.
-_frontend_dir = Path(__file__).parent.parent / "frontend"
+# html=True makes StaticFiles serve index.html for '/' and any unmatched path.
+_frontend_dir = Path(os.getenv("FRONTEND_DIR", str(Path(__file__).parent.parent / "frontend")))
 if _frontend_dir.exists():
     app.mount("/", StaticFiles(directory=str(_frontend_dir), html=True), name="frontend")
+    log.info("Frontend served from %s", _frontend_dir)
+else:
+    log.warning("Frontend directory not found at %s — UI will not be served.", _frontend_dir)
 
 
 @app.on_event("startup")

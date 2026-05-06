@@ -21,9 +21,10 @@ WORKDIR /app
 COPY --from=builder /install /usr/local
 
 # Copy application source
-COPY api/    ./api/
-COPY ml/     ./ml/
-COPY db/     ./db/
+COPY api/      ./api/
+COPY ml/       ./ml/
+COPY db/       ./db/
+COPY frontend/ ./frontend/
 
 # These dirs are volume-mounted from the host at runtime
 RUN mkdir -p /app/data /app/models
