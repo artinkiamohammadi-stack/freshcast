@@ -26,6 +26,7 @@ from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from api.routes import products, forecast, retrain
@@ -59,12 +60,16 @@ def health():
     return {"status": "ok"}
 
 
-# Serve the frontend as static files.
-# In Docker the frontend is at /app/frontend (FRONTEND_DIR env var overrides).
-# API routes registered above take priority over the catch-all static mount.
-# html=True makes StaticFiles serve index.html for '/' and any unmatched path.
+# Resolve frontend directory — works locally and in Docker (/app/frontend).
 _frontend_dir = Path(os.getenv("FRONTEND_DIR", str(Path(__file__).parent.parent / "frontend")))
+
 if _frontend_dir.exists():
+    # Explicit root route: StaticFiles mounted at "/" has a Starlette edge case
+    # where GET / doesn't reliably resolve to index.html without this.
+    @app.get("/", include_in_schema=False)
+    def serve_root():
+        return FileResponse(str(_frontend_dir / "index.html"))
+
     app.mount("/", StaticFiles(directory=str(_frontend_dir), html=True), name="frontend")
     log.info("Frontend served from %s", _frontend_dir)
 else:
